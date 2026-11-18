@@ -1,0 +1,357 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-shopeasy-2024"
+		},
+		"LS_Azure_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_Azure'"
+		},
+		"LS_BLOBStorage_SHOPEASY_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_BLOBStorage_SHOPEASY'"
+		},
+		"LS_Azure_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-shopeasyy.database.windows.net"
+		},
+		"LS_Azure_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "shopeasy-dw"
+		},
+		"LS_Azure_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sqlAdmin"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Blob_Customers')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_BLOBStorage_SHOPEASY",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "customers.csv",
+						"folderPath": "Customers",
+						"container": "raw"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "CustomerId",
+						"type": "String"
+					},
+					{
+						"name": "FirstName",
+						"type": "String"
+					},
+					{
+						"name": "LastName",
+						"type": "String"
+					},
+					{
+						"name": "Email",
+						"type": "String"
+					},
+					{
+						"name": "Phone",
+						"type": "String"
+					},
+					{
+						"name": "City",
+						"type": "String"
+					},
+					{
+						"name": "State",
+						"type": "String"
+					},
+					{
+						"name": "Country",
+						"type": "String"
+					},
+					{
+						"name": "CustomerSegment",
+						"type": "String"
+					},
+					{
+						"name": "JoinDate",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_BLOBStorage_SHOPEASY')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Blob_Orders')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_BLOBStorage_SHOPEASY",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Filename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().Filename",
+							"type": "Expression"
+						},
+						"folderPath": "Orders/Year=2024",
+						"container": "raw"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "OrderId",
+						"type": "String"
+					},
+					{
+						"name": "CustomerId",
+						"type": "String"
+					},
+					{
+						"name": "ProductId",
+						"type": "String"
+					},
+					{
+						"name": "OrderDate",
+						"type": "String"
+					},
+					{
+						"name": "Quantity",
+						"type": "String"
+					},
+					{
+						"name": "UnitPrice",
+						"type": "String"
+					},
+					{
+						"name": "Discount",
+						"type": "String"
+					},
+					{
+						"name": "ShippingCost",
+						"type": "String"
+					},
+					{
+						"name": "PaymentMethod",
+						"type": "String"
+					},
+					{
+						"name": "OrderStatus",
+						"type": "String"
+					},
+					{
+						"name": "Region",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_BLOBStorage_SHOPEASY')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Blob_Products')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_BLOBStorage_SHOPEASY",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "products.csv",
+						"folderPath": "Products",
+						"container": "raw"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ProductId",
+						"type": "String"
+					},
+					{
+						"name": "ProductName",
+						"type": "String"
+					},
+					{
+						"name": "Category",
+						"type": "String"
+					},
+					{
+						"name": "SubCategory",
+						"type": "String"
+					},
+					{
+						"name": "Brand",
+						"type": "String"
+					},
+					{
+						"name": "UnitPrice",
+						"type": "String"
+					},
+					{
+						"name": "CostPrice",
+						"type": "String"
+					},
+					{
+						"name": "StockQty",
+						"type": "String"
+					},
+					{
+						"name": "Supplier",
+						"type": "String"
+					},
+					{
+						"name": "IsActive",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_BLOBStorage_SHOPEASY')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Blob_returns')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_BLOBStorage_SHOPEASY",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "returns.csv",
+						"folderPath": "Returns",
+						"container": "raw"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ReturnId",
+						"type": "String"
+					},
+					{
+						"name": "OrderId",
+						"type": "String"
+					},
+					{
+						"name": "CustomerId",
+						"type": "String"
+					},
+					{
+						"name": "ProductId",
+						"type": "String"
+					},
+					{
+						"name": "ReturnDate",
+						"type": "String"
+					},
+					{
+						"name": "ReturnReason",
+						"type": "String"
+					},
+					{
+						"name": "ReturnStatus",
+						"type": "String"
+					},
+					{
+						"name": "RefundAmount",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_BLOBStorage_SHOPEASY')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_Azure')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Clean data destination",
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('LS_Azure_properties_typeProperties_server')]",
+					"database": "[parameters('LS_Azure_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": true,
+					"authenticationType": "SQL",
+					"userName": "[parameters('LS_Azure_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('LS_Azure_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_BLOBStorage_SHOPEASY')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Raw data csv file for shopeasy project.",
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('LS_BLOBStorage_SHOPEASY_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
